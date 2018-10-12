@@ -1,8 +1,6 @@
 package com.zzlhr.kblog.services
 
 import com.querydsl.core.BooleanBuilder
-import com.querydsl.core.types.Projections
-import com.querydsl.core.types.QBean
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import com.zzlhr.kblog.entity.*
@@ -14,7 +12,6 @@ import com.zzlhr.kblog.vo.Page
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import javax.persistence.EntityManager
-
 interface ArticleService {
 
     /**
@@ -24,7 +21,9 @@ interface ArticleService {
      * @param page     页数
      * @param pageSize 每页数量
      */
-    fun getArticleList(keyword: String, tag: String, page: Long, pageSize: Long): Page<ArticleListVO>
+    fun getArticleList(keyword: String, tag: String, author: Int, status: Int, page: Long, pageSize: Long): Page<ArticleListVO>
+
+//    fun getArticleList(keyword: String, tag: String, page: Long, pageSize: Long): Page<ArticleListVO>
 
 
     fun getArticle(aid: Int): ArticleVO
@@ -54,7 +53,7 @@ class ArticleServiceImpl : ArticleService {
 
         val article: ArticleVO =
                 queryFactor!!
-                        .select(Pbs.getArticleBean()).from(qArticle)
+                        .select(Pbs.articleBean).from(qArticle)
                         .leftJoin(qArticleInfo)
                         .on(qArticle.aid.eq(qArticleInfo.aid))
                         .leftJoin(qUser)
@@ -80,7 +79,12 @@ class ArticleServiceImpl : ArticleService {
 
         return article
     }
-    override fun getArticleList(keyword: String, tag: String, page: Long, pageSize: Long): Page<ArticleListVO> {
+    override fun getArticleList(keyword: String,
+                                tag: String,
+                                author: Int,
+                                status: Int,
+                                page: Long,
+                                pageSize: Long): Page<ArticleListVO> {
         val qArticle: QArticle = QArticle.article
         val qArticleInfo: QArticleInfo = QArticleInfo.articleInfo
         val qUser: QUser = QUser.user
@@ -95,10 +99,19 @@ class ArticleServiceImpl : ArticleService {
             builder.and(qArticle.articleTitle.like("%$keyword%"))
         }
 
+        // if author is 0 this select operate not select author
+//        if(author != 0){
+//            builder.and(qArticle.articleAuthor.eq(author))
+//        }
+//
+//        builder.and(qArticle.articleStatus.eq(status))
+
+
+
 
         val articleListQuery: JPAQuery<ArticleListVO> =
                 queryFactor!!
-                        .select(Pbs.getArticleListBean()).from(qArticle)
+                        .select(Pbs.articleListBean).from(qArticle)
                         .leftJoin(qArticleInfo)
                         .on(qArticle.aid.eq(qArticleInfo.aid))
                         .leftJoin(qUser)
@@ -118,9 +131,9 @@ class ArticleServiceImpl : ArticleService {
         val articleIds = ArrayList<Int>()
         articleList.forEach { articleListVO ->  articleIds.add(articleListVO.aid)}
 
+
         // 查询tag
-        val articleTagQuery: JPAQuery<ArticleTag> =
-                queryFactor!!
+        val articleTagQuery = queryFactor!!
                         .selectFrom(qArticleTag)
                         .where(qArticleTag.aid.`in`(articleIds))
         val articleTags = articleTagQuery.fetch()

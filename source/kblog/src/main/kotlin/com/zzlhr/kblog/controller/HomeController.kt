@@ -31,7 +31,7 @@ class HomeController {
     @GetMapping("/index.html")
     fun index(model: Model): String{
         val articleList:Page<ArticleListVO> =
-                articleService!!.getArticleList("", "",1, 10);
+                articleService!!.getArticleList("", "",0,0,1, 10);
         model["articles"] = articleList;
         return "index"
     }
@@ -40,7 +40,7 @@ class HomeController {
     @GetMapping("/search.html")
     fun search(keyword: String, model: Model): String{
         val articleList:Page<ArticleListVO> =
-                articleService!!.getArticleList(keyword, "",1, 10);
+                articleService!!.getArticleList(keyword, "",0,0,1, 10);
         model["articles"] = articleList;
         return "index"
     }

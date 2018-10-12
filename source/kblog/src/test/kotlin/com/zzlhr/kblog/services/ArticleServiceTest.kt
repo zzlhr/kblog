@@ -16,7 +16,7 @@ class ArticleRepositoryTest {
 
     @Test
     fun findById(){
-        println(service.getArticleList("","",1, 10))
+//        println(service.getArticleList("","",1, 10))
     }
 
 }

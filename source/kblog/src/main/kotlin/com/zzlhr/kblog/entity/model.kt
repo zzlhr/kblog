@@ -1,15 +1,13 @@
 package com.zzlhr.kblog.entity
 
-import lombok.Data
 import java.util.*
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
+import javax.persistence.*
 
 
 @Entity
 data class Article(
         @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         val aid: Int,
         val articleTitle: String,
         val articleDescribe: String,
@@ -27,6 +25,7 @@ data class Article(
 @Entity
 data class User(
         @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         val uid: Int,
         val loginName: String,
         val username: String,
@@ -45,6 +44,7 @@ data class User(
 @Entity
 data class ArticleInfo(
         @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         val aid: Int,
         val articleClick: Int,
         val articleComment: Int,
@@ -54,6 +54,7 @@ data class ArticleInfo(
 @Entity
 data class ArticleTag(
         @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         val atid: Int,
         val aid: Int,
         val tagContent: String

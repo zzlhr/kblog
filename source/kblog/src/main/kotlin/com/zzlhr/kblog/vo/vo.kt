@@ -1,13 +1,37 @@
 package com.zzlhr.kblog.vo
 
-import lombok.AllArgsConstructor
-import lombok.Data
-import lombok.NoArgsConstructor
+import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson.JSONArray
+import com.alibaba.fastjson.JSONObject
+import com.alibaba.fastjson.serializer.SerializerFeature
 import java.util.*
 import kotlin.collections.ArrayList
 import com.querydsl.jpa.impl.JPAQuery
-import com.zzlhr.kblog.MarkdownConverter
-import org.springframework.beans.factory.annotation.Autowired
+import kotlin.collections.HashMap
+
+
+class ResultVO{
+    var code: Int = 0
+    var msg: String = ""
+    var data: Any = Object()
+    set(value) {
+        print(value::class)
+        JSON.DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss"
+        field = if (value::class == List::class){
+            JSONArray.parse(JSON.toJSONString(value, SerializerFeature.WriteDateUseDateFormat))
+        }else{
+            JSONObject.parse(JSON.toJSONString(value, SerializerFeature.WriteDateUseDateFormat))
+        }
+    }
+
+    public fun getJSON(resultVO: ResultVO): String {
+        return JSON.toJSONString(resultVO)
+    }
+
+    override fun toString(): String {
+        return "{code:$code, msg:'$msg', data:$data}"
+    }
+}
 
 
 class Page<T> {
@@ -75,8 +99,6 @@ class ArticleListVO {
 }
 
 class ArticleVO {
-
-
 
     var aid: Int = 0
     var articleTitle: String = ""
