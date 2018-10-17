@@ -7,7 +7,10 @@ import Vuex from 'vuex'
 import routes from "./router/routes";
 import Icon from 'vue-svg-icon/Icon.vue';
 import VueResource from "vue-resource"
-
+import mavonEditor from 'mavon-editor'
+import 'mavon-editor/dist/css/index.css'
+// use
+Vue.use(mavonEditor)
 Vue.use(VueResource);
 Vue.component('icon', Icon);
 Vue.use(Vuex)

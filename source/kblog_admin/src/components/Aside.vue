@@ -19,7 +19,7 @@
             </template>
             <el-menu-item-group>
                 <el-menu-item index="/article/list">文章列表</el-menu-item>
-                <el-menu-item index="1-2">选项2</el-menu-item>
+                <el-menu-item index="/article/add">写文章</el-menu-item>
             </el-menu-item-group>
             <el-menu-item-group title="分组2">
                 <el-menu-item index="1-3">选项3</el-menu-item>
@@ -56,9 +56,12 @@
             }
         },
         mounted() {
-            //初始化选中菜单
-            // console.log(this.$route.fullPath)
-            this.activeIndex = this.$route.fullPath
+        },
+        watch:{
+            $route(val){
+                // 通过监听路由变化从而改变当前的选中菜单
+                this.activeIndex =  val.fullPath
+            }
         }
     }
 </script>

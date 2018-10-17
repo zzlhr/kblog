@@ -93,7 +93,7 @@
     export default {
         methods: {
             goAdd(){
-              this.$router.push("/article/add")
+              this.$router.push({path: '/article/add'})
             },
             // 切换每页数量
             handleSizeChange(val) {
