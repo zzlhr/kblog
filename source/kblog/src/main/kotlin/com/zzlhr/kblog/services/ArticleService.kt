@@ -12,6 +12,7 @@ import com.zzlhr.kblog.vo.Page
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import javax.persistence.EntityManager
+
 interface ArticleService {
 
     /**
@@ -21,9 +22,10 @@ interface ArticleService {
      * @param page     页数
      * @param pageSize 每页数量
      */
-    fun getArticleList(keyword: String, tag: String, author: Int, status: Int, page: Long, pageSize: Long): Page<ArticleListVO>
+    fun getArticleList(keyword: String, tag: String,
+                       author: Int, status: Int,
+                       page: Long, pageSize: Long): Page<ArticleListVO>
 
-//    fun getArticleList(keyword: String, tag: String, page: Long, pageSize: Long): Page<ArticleListVO>
 
 
     fun getArticle(aid: Int): ArticleVO
@@ -31,18 +33,12 @@ interface ArticleService {
 
 
 @Service
-class ArticleServiceImpl : ArticleService {
+class ArticleServiceImpl
+@Autowired constructor(entityManager: EntityManager) : ArticleService {
 
 
+    private final var queryFactor: JPAQueryFactory = JPAQueryFactory(entityManager)
 
-    private final var queryFactor: JPAQueryFactory? = null
-
-
-
-    @Autowired
-    fun ArticleService(entityManager: EntityManager){
-        this.queryFactor = JPAQueryFactory(entityManager)
-    }
 
     override fun getArticle(aid: Int): ArticleVO {
         val qArticle: QArticle = QArticle.article
@@ -52,14 +48,15 @@ class ArticleServiceImpl : ArticleService {
 
 
         val article: ArticleVO =
-                queryFactor!!
+                queryFactor
                         .select(Pbs.articleBean).from(qArticle)
                         .leftJoin(qArticleInfo)
                         .on(qArticle.aid.eq(qArticleInfo.aid))
                         .leftJoin(qUser)
                         .on(qArticle.articleAuthor.eq(qUser.uid))
                         .where(qArticle.aid.eq(aid))
-                        .fetchOne() ?: throw KBlogException(KBlogExceptionEnum.ARTICLE_NOT_EXIST)
+                        .fetchOne() ?:
+                throw KBlogException(KBlogExceptionEnum.ARTICLE_NOT_EXIST)
 
 
         // 循环获取文章id
@@ -67,18 +64,19 @@ class ArticleServiceImpl : ArticleService {
 
         // 查询tag
         val articleTagQuery: JPAQuery<ArticleTag> =
-                queryFactor!!
+                queryFactor
                         .selectFrom(qArticleTag)
                         .where(qArticleTag.aid.eq(article.aid))
         val articleTags = articleTagQuery.fetch()
 
         // 添加tag到文章vo对象
-        for (tag in articleTags){
+        for (tag in articleTags) {
             article.tags.add(tag.tagContent)
         }
 
         return article
     }
+
     override fun getArticleList(keyword: String,
                                 tag: String,
                                 author: Int,
@@ -92,10 +90,10 @@ class ArticleServiceImpl : ArticleService {
 
         val builder = BooleanBuilder()
 
-        if (!keyword.isEmpty()){
+        if (!keyword.isEmpty()) {
             builder.and(qArticle.articleTitle.like("%$keyword%"))
         }
-        if (!tag.isEmpty()){
+        if (!tag.isEmpty()) {
             builder.and(qArticle.articleTitle.like("%$keyword%"))
         }
 
@@ -107,10 +105,8 @@ class ArticleServiceImpl : ArticleService {
 //        builder.and(qArticle.articleStatus.eq(status))
 
 
-
-
         val articleListQuery: JPAQuery<ArticleListVO> =
-                queryFactor!!
+                queryFactor
                         .select(Pbs.articleListBean).from(qArticle)
                         .leftJoin(qArticleInfo)
                         .on(qArticle.aid.eq(qArticleInfo.aid))
@@ -120,28 +116,32 @@ class ArticleServiceImpl : ArticleService {
                         .offset((page - 1) * pageSize)
                         .limit(pageSize)
 
-        val result: Page<ArticleListVO> = Page<ArticleListVO>().init(articleListQuery, pageSize)
+        val result: Page<ArticleListVO> =
+                Page<ArticleListVO>().init(articleListQuery, pageSize)
 
         // 查询出来的文章列表
-        val articleList:ArrayList<ArticleListVO> = articleListQuery.fetch() as ArrayList<ArticleListVO>
+        val articleList: ArrayList<ArticleListVO> =
+                articleListQuery.fetch() as ArrayList<ArticleListVO>
 
 
         // 循环获取文章id
 
         val articleIds = ArrayList<Int>()
-        articleList.forEach { articleListVO ->  articleIds.add(articleListVO.aid)}
+        articleList.forEach {
+            articleListVO -> articleIds.add(articleListVO.aid)
+        }
 
 
         // 查询tag
-        val articleTagQuery = queryFactor!!
-                        .selectFrom(qArticleTag)
-                        .where(qArticleTag.aid.`in`(articleIds))
+        val articleTagQuery = queryFactor
+                .selectFrom(qArticleTag)
+                .where(qArticleTag.aid.`in`(articleIds))
         val articleTags = articleTagQuery.fetch()
 
         // 添加tag到文章vo对象
-        for (article in articleList){
-            for (t in articleTags){
-                if (article.aid == t.aid){
+        for (article in articleList) {
+            for (t in articleTags) {
+                if (article.aid == t.aid) {
                     article.tags.add(t.tagContent)
                 }
             }

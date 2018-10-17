@@ -59,3 +59,14 @@ data class ArticleTag(
         val aid: Int,
         val tagContent: String
 )
+
+@Entity
+data class AuthCode(
+        @Id
+        val acId: Int,
+        val ip:String,
+        val value: String,
+        @Column(insertable = false, updatable = false)
+        val createTime: Date,
+        val used: Int
+)

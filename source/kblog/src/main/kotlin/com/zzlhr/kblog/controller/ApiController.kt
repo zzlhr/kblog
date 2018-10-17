@@ -15,13 +15,10 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api")
 @CrossOrigin
-class ApiController {
-    private final var articleService: ArticleService? = null;
+class ApiController
+@Autowired constructor(private val articleService: ArticleService) {
+
     private var resultVO: ResultVO = ResultVO()
-    @Autowired
-    fun ApiController(articleService: ArticleService){
-        this.articleService = articleService;
-    }
 
 
     @PostMapping("/articles")
@@ -31,10 +28,12 @@ class ApiController {
                  @RequestParam(defaultValue = "1")page: Long,
                  @RequestParam(defaultValue = "10")pageSize: Long): String{
 
-        resultVO.data = articleService?.
-                getArticleList(keyword, "", author, status, page, pageSize)!!
+        resultVO.data = articleService.getArticleList(
+                keyword, "", author, status, page, pageSize)
         return resultVO.getJSON(resultVO)
     }
+
+
 
 
 
